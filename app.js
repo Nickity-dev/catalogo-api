@@ -1,13 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const conectarDB = require('./src/config/db');
-const rotasProdutos = require('./src/routes/produtoRoutes');
 const rotasAuth = require('./src/routes/authRoutes');
+const rotasApi = require('./src/routes/apiRoutes');
+const rotasCategorias = require('./src/routes/categoriaRoutes');
 const authMiddleware = require('./src/middleware/authMiddleware');
 
 const app = express();
-
-conectarDB();
 
 app.use(express.json());
 app.use((req, res, next) => {
@@ -17,9 +15,10 @@ app.use((req, res, next) => {
 
 // Rotas públicas
 app.use('/auth', rotasAuth);
+app.use('/api', rotasApi);
 
 // Rotas protegidas
-app.use('/produtos', authMiddleware, rotasProdutos);
+app.use('/api/categorias', authMiddleware, rotasCategorias);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

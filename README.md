@@ -1,80 +1,81 @@
-# Catálogo de Produtos API
+# API Loja
 
-API REST desenvolvida com Node.js, Express e MongoDB para gerenciamento de um catálogo de produtos com autenticação de usuários.
+API REST desenvolvida com Node.js, Express e MySQL para autenticação de usuários e CRUD protegido de categorias.
 
 ## Tecnologias
 
 - Node.js
 - Express
-- MongoDB + Mongoose
+- MySQL com mysql2/promise
 - BCryptjs
 - JSON Web Token (JWT)
+- Dotenv
 
-## Como rodar o projeto
+## Como rodar
 
-### Pré-requisitos
-- Node.js instalado
-- MongoDB rodando localmente
+1. Instale as dependências:
 
-### Instalação
-
-1. Clone o repositório:
-\`\`\`bash
-git clone https://github.com/seu-usuario/catalogo-api
-cd catalogo-api
-\`\`\`
-
-2. Instale as dependências:
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
-3. Crie o arquivo `.env` baseado no `.env.example`:
-\`\`\`bash
-cp .env.example .env
-\`\`\`
+2. Execute o script `loja.sql` no MySQL Workbench ou MySQL command line.
 
-4. Preencha as variáveis no `.env`:
-\`\`\`
+3. Crie/preencha o arquivo `.env`:
+
+```env
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/catalogo-api
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=sua_senha_do_mysql
+DB_NAME=loja
 JWT_SECRET=sua_chave_secreta
-\`\`\`
+```
 
-5. Inicie o servidor:
-\`\`\`bash
+4. Inicie o servidor:
+
+```bash
 node app.js
-\`\`\`
+```
 
-## Endpoints
+## Endpoints publicos
 
-### Autenticação
-
-| Método | Rota | Descrição |
+| Metodo | Rota | Descricao |
 |--------|------|-----------|
-| POST | /auth/registrar | Registra um novo usuário |
-| POST | /auth/login | Realiza login e retorna o token |
+| GET | /api/status | Retorna status e versao da API |
+| GET | /api/versao | Retorna status e versao da API |
+| POST | /auth/registrar | Registra um usuario no MySQL |
+| POST | /auth/login | Realiza login e retorna token |
 
-### Produtos (requer token)
+## Categorias
 
-| Método | Rota | Descrição |
+As rotas abaixo exigem dois headers:
+
+```http
+Authorization: Bearer SEU_TOKEN
+x-user-id: ID_DO_USUARIO
+```
+
+| Metodo | Rota | Descricao |
 |--------|------|-----------|
-| GET | /produtos | Lista todos os produtos |
-| GET | /produtos/:id | Busca um produto por ID |
-| POST | /produtos | Cria um novo produto |
-| PUT | /produtos/:id | Atualiza um produto |
-| DELETE | /produtos/:id | Remove um produto |
+| GET | /api/categorias | Lista categorias |
+| GET | /api/categorias/:id | Busca uma categoria |
+| POST | /api/categorias | Cria uma categoria |
+| PUT | /api/categorias/:id | Atualiza uma categoria |
+| DELETE | /api/categorias/:id | Remove uma categoria |
 
-## Autenticação
+Exemplo de body para criar ou atualizar categoria:
 
-As rotas de produtos são protegidas. Após o login, use o token retornado no header:
-
-\`\`\`
-Authorization: Bearer SEU_TOKEN_AQUI
-\`\`\`
+```json
+{
+  "nome": "Bebidas"
+}
+```
 
 ## Segurança
 
+- Credenciais isoladas no `.env`
+- Queries SQL com Prepared Statements (`?`)
 - Senhas criptografadas com BCrypt
-- Autenticação via JWT
-- Proteção contra NoSQL Injection via sanitizeFilter do Mongoose
+- Autenticacao via JWT
+- CRUD de categorias bloqueado sem token valido e ID do usuario
