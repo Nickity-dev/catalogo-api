@@ -1,19 +1,23 @@
-const mongoose = require('mongoose');
+const conexao = require('../config/database');
 
-const usuarioSchema = new mongoose.Schema({
-    nome: {
-        type: String,
-        required: [true, 'O nome é obrigatório']
-    },
-    email: {
-        type: String,
-        required: [true, 'O email é obrigatório'],
-        unique: true
-    },
-    senha: {
-        type: String,
-        required: [true, 'A senha é obrigatória']
+class UsuarioModel {
+    static async buscarPorEmail(email) {
+        const sql = 'SELECT id_usuario, nome, email, senha FROM usuarios WHERE email = ?';
+        const [linhas] = await conexao.execute(sql, [email]);
+        return linhas.length > 0 ? linhas[0] : null;
     }
-});
 
-module.exports = mongoose.model('Usuario', usuarioSchema);
+    static async buscarPorId(idUsuario) {
+        const sql = 'SELECT id_usuario, nome, email FROM usuarios WHERE id_usuario = ?';
+        const [linhas] = await conexao.execute(sql, [idUsuario]);
+        return linhas.length > 0 ? linhas[0] : null;
+    }
+
+    static async criar({ nome, email, senha }) {
+        const sql = 'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)';
+        const [resultado] = await conexao.execute(sql, [nome, email, senha]);
+        return resultado.insertId;
+    }
+}
+
+module.exports = UsuarioModel;
