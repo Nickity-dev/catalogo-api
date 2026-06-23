@@ -18,6 +18,12 @@ class UsuarioModel {
         const [resultado] = await conexao.execute(sql, [nome, email, senha]);
         return resultado.insertId;
     }
+
+    static async listarTodos() {
+        const sql = 'SELECT id_usuario, nome, email FROM usuarios ORDER BY id_usuario';
+        const [linhas] = await conexao.execute(sql);
+        return linhas;
+    }
 }
 
 module.exports = UsuarioModel;
