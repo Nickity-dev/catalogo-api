@@ -4,6 +4,7 @@ const rotasAuth = require('./src/routes/authRoutes');
 const rotasApi = require('./src/routes/apiRoutes');
 const rotasCategorias = require('./src/routes/categoriaRoutes');
 const rotasUsuarios = require('./src/routes/usuarioRoutes');
+const rotasProdutos = require('./src/routes/produtoRoutes');
 const authMiddleware = require('./src/middleware/authMiddleware');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./src/swagger/swagger.json');
@@ -23,6 +24,7 @@ app.use('/api', rotasApi);
 // Rotas protegidas
 app.use('/api/categorias', authMiddleware, rotasCategorias);
 app.use('/api/usuarios', authMiddleware, rotasUsuarios);
+app.use('/api/produtos', authMiddleware, rotasProdutos);
 
 // Swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
