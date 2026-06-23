@@ -1,0 +1,345 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Apicopia API",
+    "version": "2.0.0",
+    "description": "API de categorias e autenticação com MySQL e JWT."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "example": "admin@loja.com" },
+          "senha": { "type": "string", "example": "turma632" }
+        },
+        "required": ["email", "senha"]
+      },
+      "RegistrarRequest": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "Administrador" },
+          "email": { "type": "string", "example": "usuario@loja.com" },
+          "senha": { "type": "string", "example": "senha123" }
+        },
+        "required": ["nome", "email", "senha"]
+      },
+      "CategoriaCreate": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "Eletrônicos" }
+        },
+        "required": ["nome"]
+      },
+      "CategoriaResponse": {
+        "type": "object",
+        "properties": {
+          "id_categoria": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "Eletrônicos" }
+        }
+      },
+      "UsuarioResponse": {
+        "type": "object",
+        "properties": {
+          "id_usuario": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "Administrador" },
+          "email": { "type": "string", "example": "admin@loja.com" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Efetua login e retorna token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": { "type": "string" },
+                    "token": { "type": "string" },
+                    "id_usuario": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/registrar": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Registra um novo usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegistrarRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": { "type": "string" },
+                    "id_usuario": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "tags": ["API"],
+        "summary": "Retorna status da API",
+        "responses": {
+          "200": {
+            "description": "API online",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "versao": { "type": "string", "example": "2.0.0" },
+                    "status": { "type": "string", "example": "online" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/versao": {
+      "get": {
+        "tags": ["API"],
+        "summary": "Retorna versão da API",
+        "responses": {
+          "200": {
+            "description": "API online",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "versao": { "type": "string", "example": "2.0.0" },
+                    "status": { "type": "string", "example": "online" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categorias": {
+      "get": {
+        "tags": ["Categorias"],
+        "summary": "Lista todas as categorias",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoriaResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Categorias"],
+        "summary": "Cria uma nova categoria",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CategoriaCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoria criada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CategoriaResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categorias/{id}": {
+      "get": {
+        "tags": ["Categorias"],
+        "summary": "Busca categoria por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoria encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CategoriaResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Categorias"],
+        "summary": "Atualiza uma categoria",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CategoriaCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoria atualizada"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Categorias"],
+        "summary": "Remove uma categoria",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoria removida"
+          }
+        }
+      }
+    },
+    "/api/usuarios": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Lista todos os usuários",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UsuarioResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
